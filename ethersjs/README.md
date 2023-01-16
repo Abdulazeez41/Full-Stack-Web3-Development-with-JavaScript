@@ -54,3 +54,12 @@ Read blockchain data's onChain.
 ```sh
     node readChainData.js
 ```
+
+INPUT DATA
+
+```sh
+    INFURA-KEY = insert "INFURA-KEY"
+    PRIVATE-KEY = insert "PRIVATE-KEY"
+    WALLET-OR-CONTRACT-ADDRESS-HERE = insert "WALLET-OR-CONTRACT-ADDRESS-HERE"
+    DEPLOYED-CONTRACT-ADDRESS-HERE = insert "DEPLOYED-CONTRACT-ADDRESS-HERE"
+```
