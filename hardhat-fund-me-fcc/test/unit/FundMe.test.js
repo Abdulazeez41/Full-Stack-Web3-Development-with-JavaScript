@@ -16,7 +16,7 @@ describe("FundMe", function() {
         deployer = (await getNamedAccounts()).deployer
 
         // Print named accounts for debugging purposes
-        console.log(await getNamedAccounts())
+        // console.log(await getNamedAccounts())
 
         // Deploy contracts using the fixture and get instances
         await deployments.fixture(["all"])
@@ -31,7 +31,7 @@ describe("FundMe", function() {
     describe("constructor", async function() {
         it("Sets the aggregator addresses correctly", async function() {
             // Check if the aggregator address is set correctly
-            const response = await fundMe.s_priceFeed()
+            const response = await fundMe.getPriceFeed()
             assert.equal(response, mockV3Aggregator.address)
         })
     })
@@ -48,14 +48,14 @@ describe("FundMe", function() {
         it("Updates the amount funded data structure", async function() {
             // Fund the contract and check if the amount funded is updated
             await fundMe.fund({ value: sendValue })
-            const response = await fundMe.s_addressToAmountFunded(deployer)
+            const response = await fundMe.getAddressToAmountFunded(deployer)
             assert.equal(response.toString(), sendValue.toString())
         })
 
         it("Adds funder to array of funders", async function() {
             // Fund the contract and check if the funder is added to the array
             await fundMe.fund({ value: sendValue })
-            const funder = await fundMe.s_funders(0)
+            const funder = await fundMe.getFunder(0)
             assert.equal(funder, deployer)
         })
     })
@@ -140,12 +140,12 @@ describe("FundMe", function() {
             )
 
             // Check if the funders array is reset properly
-            await expect(fundMe.s_funders(0)).to.be.reverted
+            await expect(fundMe.getFunder(0)).to.be.reverted
 
             // Check if the amount funded by each funder is reset to 0
             for (let i = 0; i < 6; i++) {
                 await assert.equal(
-                    await fundMe.s_addressToAmountFunded(accounts[i].address),
+                    await fundMe.getAddressToAmountFunded(accounts[i].address),
                     0
                 )
             }
@@ -166,7 +166,7 @@ describe("FundMe", function() {
             ).to.be.revertedWithCustomError(fundMe, "FundMe__NotOwner")
         })
     })
-    // Test withdrawing ETH with multiple s_funders
+    // Test withdrawing ETH with multiple getFunder
     it("cheaperWithdraw testing...", async function() {
         // Arrange: Fund the contract with multiple accounts
         const accounts = await ethers.getSigners()
@@ -202,13 +202,13 @@ describe("FundMe", function() {
             endingDeployerBalance.add(gasCost).toString()
         )
 
-        // Check if the s_funders array is reset properly
-        await expect(fundMe.s_funders(0)).to.be.reverted
+        // Check if the getFunder array is reset properly
+        await expect(fundMe.getFunder(0)).to.be.reverted
 
         // Check if the amount funded by each funder is reset to 0
         for (let i = 0; i < 6; i++) {
             await assert.equal(
-                await fundMe.s_addressToAmountFunded(accounts[i].address),
+                await fundMe.getAddressToAmountFunded(accounts[i].address),
                 0
             )
         }

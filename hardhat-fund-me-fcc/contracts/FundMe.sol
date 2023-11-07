@@ -9,11 +9,11 @@ error FundMe__NotOwner();
 contract FundMe {
     using PriceConverter for uint256;
 
-    mapping(address => uint256) public s_addressToAmountFunded;
-    address[] public s_funders;
+    mapping(address => uint256) private s_addressToAmountFunded;
+    address[] private s_funders;
 
     // Could we make this constant?  /* hint: no! We should make it immutable! */
-    address public immutable i_owner;
+    address private immutable i_owner;
     uint256 public constant MINIMUM_USD = 50 * 10 ** 18;
 
     AggregatorV3Interface public s_priceFeed;
@@ -80,22 +80,30 @@ contract FundMe {
             s_addressToAmountFunded[funder] = 0;
         }
         s_funders = new address[](0);
-        // // transfer
+        // transfer
         (bool callSuccess, ) = i_owner.call{value: address(this).balance}("");
         require(callSuccess, "Call failed");
     }
 
-    // Explainer from: https://solidity-by-example.org/fallback/
-    // Ether is sent to contract
-    //      is msg.data empty?
-    //          /   \
-    //         yes  no
-    //         /     \
-    //    receive()?  fallback()
-    //     /   \
-    //   yes   no
-    //  /        \
-    //receive()  fallback()
+    // View/Pure
+
+    function getOwner() public view returns (address) {
+        return i_owner;
+    }
+
+    function getFunder(uint256 index) public view returns (address) {
+        return s_funders[index];
+    }
+
+    function getAddressToAmountFunded(
+        address funder
+    ) public view returns (uint256) {
+        return s_addressToAmountFunded[funder];
+    }
+
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
+        return s_priceFeed;
+    }
 }
 
 // Concepts we didn't cover yet (will cover in later sections)
@@ -106,3 +114,15 @@ contract FundMe {
 // 5. abi.encode / decode
 // 6. Hash with keccak256
 // 7. Yul / Assembly
+
+// Explainer from: https://solidity-by-example.org/fallback/
+// Ether is sent to contract
+//      is msg.data empty?
+//          /   \
+//         yes  no
+//         /     \
+//    receive()?  fallback()
+//     /   \
+//   yes   no
+//  /        \
+//receive()  fallback()
